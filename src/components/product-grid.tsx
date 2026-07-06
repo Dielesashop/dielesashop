@@ -30,7 +30,7 @@ export function ProductGrid() {
       <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeading
           eyebrow="Catálogo"
-          title="Elige tu próximo objeto favorito"
+          title="Elige tu próxima herramienta equipo o material eléctrico"
           description="Ocho productos, un mismo estándar: materiales duraderos, software que mejora con el tiempo."
         />
 
