@@ -1,11 +1,16 @@
-"use client";
-
 import { useRef, useState } from "react";
-import { Plus, Star, Flame } from "lucide-react";
+import { Plus, Package } from "lucide-react";
 import type { Product } from "@/lib/products";
-import { formatMXN, cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 import { useCart } from "@/context/cart-context";
-import { ProductVisual } from "./product-visual";
+
+function formatMXN(value: number) {
+  return value.toLocaleString("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 2,
+  });
+}
 
 export function ProductCard({ product }: { product: Product }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -13,10 +18,8 @@ export function ProductCard({ product }: { product: Product }) {
   const [justAdded, setJustAdded] = useState(false);
   const { addItem } = useCart();
 
-  const discount = product.compareAt
-    ? Math.round(100 - (product.price / product.compareAt) * 100)
-    : null;
-  const lowStock = product.stock <= 20;
+  const stock = product.existencia ?? 0;
+  const lowStock = stock > 0 && stock <= 20;
 
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     const rect = ref.current?.getBoundingClientRect();
@@ -28,7 +31,7 @@ export function ProductCard({ product }: { product: Product }) {
   }
 
   function handleAdd() {
-    addItem(product.id);
+    addItem(product.clave);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 1400);
   }
@@ -37,66 +40,76 @@ export function ProductCard({ product }: { product: Product }) {
     <div
       ref={ref}
       onMouseMove={handleMouseMove}
-      className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.09] to-white/[0.02] shadow-[0_1px_0_0_rgba(255,255,255,0.06)_inset] transition-all duration-300 hover:-translate-y-1 hover:border-violet-soft/50 hover:shadow-[0_20px_50px_-15px_rgba(240,120,56,0.35)]"
+      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-100/50"
     >
-      {/* cursor spotlight */}
+      {/* Cursor spotlight */}
       <div
         className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(320px circle at ${pos.x}% ${pos.y}%, rgba(240,120,56,0.16), transparent 65%)`,
+          background: `radial-gradient(320px circle at ${pos.x}% ${pos.y}%, rgba(99,102,241,0.08), transparent 65%)`,
         }}
         aria-hidden
       />
 
-      <div className="absolute left-4 top-4 z-20 flex flex-wrap gap-2">
-        {product.badge && (
-          <span className="rounded-full border border-white/10 bg-bg/80 px-3 py-1 font-mono-ui text-[11px] text-mint-soft backdrop-blur">
-            {product.badge}
+      {/* Badge de stock */}
+      <div className="absolute left-3 top-3 z-20">
+        {stock === 0 && (
+          <span className="rounded-full bg-red-100 px-3 py-1 text-[11px] font-bold text-red-600">
+            Agotado
           </span>
         )}
-        {discount && (
-          <span className="flex items-center gap-1 rounded-full bg-violet px-3 py-1 font-mono-ui text-[11px] font-semibold text-white">
-            <Flame className="h-3 w-3" />-{discount}%
+        {lowStock && (
+          <span className="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold text-amber-700">
+            ¡Quedan {stock}!
           </span>
         )}
       </div>
 
-      <ProductVisual
-        visual={product.visual}
-        className="relative flex h-56 w-full items-center justify-center overflow-hidden"
-      />
+      {/* Ícono visual */}
+      <div className="flex h-44 w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-emerald-50">
+        <Package className="h-16 w-16 text-indigo-200" strokeWidth={1} />
+      </div>
 
-      <div className="relative z-20 p-6">
-        <div className="flex items-center gap-1 text-xs text-muted">
-          <Star className="h-3.5 w-3.5 fill-amber text-amber" />
-          {product.rating}
-          <span className="text-muted/60">({product.reviews})</span>
-          {lowStock && (
-            <span className="ml-auto font-mono-ui text-[11px] text-violet-soft">
-              ¡Quedan {product.stock}!
-            </span>
-          )}
-        </div>
+      {/* Info */}
+      <div className="relative z-20 p-5">
+        {/* Clave */}
+        <p className="font-mono text-xs font-bold text-indigo-600">
+          {product.clave}
+        </p>
 
-        <h3 className="mt-2 font-display text-xl font-semibold tracking-tight">
-          {product.name}
+        {/* Descripción */}
+        <h3 className="mt-1.5 text-sm font-semibold text-gray-800 line-clamp-2">
+          {product.descripcion ?? "Sin descripción"}
         </h3>
-        <p className="mt-1 text-sm text-muted">{product.tagline}</p>
 
-        <div className="mt-4 flex items-baseline gap-2">
-          <span className="font-display text-2xl font-bold tracking-tight bg-gradient-to-r from-violet-soft to-mint-soft bg-clip-text text-transparent">
-            {formatMXN(product.price)}
-          </span>
-          {product.compareAt && (
-            <span className="font-mono-ui text-xs text-muted line-through">
-              {formatMXN(product.compareAt)}
-            </span>
-          )}
+        {/* Existencia */}
+        <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-400">
+          <span
+            className={cn(
+              "h-1.5 w-1.5 rounded-full",
+              stock > 0 ? "bg-green-500" : "bg-red-400"
+            )}
+          />
+          {stock > 0 ? `${stock} en stock` : "Sin existencia"}
         </div>
 
+        {/* Precio */}
+        <div className="mt-3">
+          <span className="text-xl font-bold text-gray-800">
+            {formatMXN(product.precio ?? 0)}
+          </span>
+        </div>
+
+        {/* Botón agregar */}
         <button
           onClick={handleAdd}
-          className="group/btn relative mt-5 flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-ink py-2.5 text-sm font-semibold text-bg transition-all duration-300 hover:bg-violet-soft active:scale-[0.98]"
+          disabled={stock === 0}
+          className={cn(
+            "relative mt-4 flex w-full items-center justify-center gap-2 overflow-hidden rounded-full py-2.5 text-sm font-semibold transition-all duration-300 active:scale-[0.98]",
+            stock > 0
+              ? "bg-indigo-600 text-white hover:bg-indigo-700"
+              : "cursor-not-allowed bg-gray-100 text-gray-400"
+          )}
         >
           <span
             className={cn(
@@ -105,15 +118,15 @@ export function ProductCard({ product }: { product: Product }) {
             )}
           >
             <Plus className="h-4 w-4" strokeWidth={2.4} />
-            Agregar al carrito
+            {stock > 0 ? "Agregar al carrito" : "No disponible"}
           </span>
           <span
             className={cn(
-              "absolute inset-0 flex items-center justify-center gap-2 bg-mint text-white transition-transform duration-300",
-              justAdded ? "translate-y-0" : "-translate-y-8"
+              "absolute inset-0 flex items-center justify-center gap-2 bg-emerald-500 text-white transition-transform duration-300",
+              justAdded ? "translate-y-0" : "-translate-y-full"
             )}
           >
-            ¡Agregado!
+            ✓ ¡Agregado!
           </span>
         </button>
       </div>

@@ -1,80 +1,82 @@
 "use client";
 
-import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
-import { ShimmerButton } from "./shimmer-button";
-import { ProductVisual } from "./product-visual";
-import { products } from "@/lib/products";
-import { formatMXN } from "@/lib/utils";
+
+import { ArrowRight, Sparkles, Package } from "lucide-react";
+import type { Product } from "@/lib/products";
 import { useCart } from "@/context/cart-context";
 
-const featured = products[0];
+function formatMXN(value: number) {
+  return value.toLocaleString("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 2,
+  });
+}
 
-export function Hero() {
+export function Hero({ featured }: { featured: Product | null }) {
   const { addItem } = useCart();
 
   return (
-    <section className="relative overflow-hidden pt-36 pb-24 lg:pt-48 lg:pb-32">
+    <section className="relative overflow-hidden pt-28 pb-20 lg:pt-40 lg:pb-28">
       {/* Aurora background */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-bg" />
-        <div className="animate-aurora absolute -top-1/3 left-1/4 h-[36rem] w-[36rem] rounded-full bg-violet/30 blur-[110px]" />
-        <div
-          className="animate-aurora absolute -top-1/4 right-1/4 h-[30rem] w-[30rem] rounded-full bg-mint/20 blur-[110px]"
-          style={{ animationDelay: "-6s" }}
-        />
-        <div
-          className="animate-aurora absolute bottom-0 left-1/3 h-[26rem] w-[26rem] rounded-full bg-amber/10 blur-[110px]"
-          style={{ animationDelay: "-11s" }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.35]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, #ffffff08 1px, transparent 1px), linear-gradient(to bottom, #ffffff08 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-            maskImage: "radial-gradient(ellipse 60% 50% at 50% 0%, black, transparent)",
-          }}
-        />
+        <div className="absolute inset-0 bg-gray-50" />
+        <div className="absolute -top-1/3 left-1/4 h-[36rem] w-[36rem] animate-pulse rounded-full bg-indigo-400/20 blur-[110px]" />
+        <div className="absolute -top-1/4 right-1/4 h-[30rem] w-[30rem] animate-pulse rounded-full bg-emerald-400/15 blur-[110px]" style={{ animationDelay: "2s" }} />
+        <div className="absolute bottom-0 left-1/3 h-[26rem] w-[26rem] animate-pulse rounded-full bg-amber-400/10 blur-[110px]" style={{ animationDelay: "4s" }} />
       </div>
 
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
+        {/* Texto principal */}
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-white/[0.03] px-4 py-1.5 font-mono-ui text-xs text-muted">
-            <Sparkles className="h-3.5 w-3.5 text-mint-soft" />
-            Colección 2026 ya disponible
+          <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/80 px-4 py-1.5 text-xs font-medium text-gray-600 backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
+            Catálogo 2026 ya disponible
           </div>
 
-          <h1 className="mt-6 font-display text-5xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-6xl lg:text-7xl">
-            Soluciones que  
+          <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+            Soluciones que
             <br />
-            energizan <span className="bg-gradient-to-r from-violet-soft via-violet to-mint-soft bg-clip-text text-transparent">tu proyecto</span>
+            energizan{" "}
+            <span className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-500 bg-clip-text text-transparent">
+              tu proyecto
+            </span>
           </h1>
 
-          <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted">
-            DIELESA integra ferretería, material eléctrico y automatización industrial en un solo lugar. Herramientas confiables, componentes certificados y asesoría técnica para que tu obra no se detenga.
-
+          <p className="mt-6 max-w-lg text-lg leading-relaxed text-gray-500">
+            DIELESA integra ferretería, material eléctrico y automatización
+            industrial en un solo lugar. Herramientas confiables, componentes
+            certificados y asesoría técnica para que tu obra no se detenga.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
-            <ShimmerButton
+            {/* Botón ver catálogo */}
+            <button
               onClick={() =>
-                document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" })
+                document
+                  .getElementById("catalogo")
+                  ?.scrollIntoView({ behavior: "smooth" })
               }
-              className="text-base"
+              className="group inline-flex items-center gap-2 rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-200"
             >
               Ver catálogo
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </ShimmerButton>
-            <ShimmerButton variant="ghost" onClick={() => addItem(featured.id)}>
-              Agregar {featured.name}
-            </ShimmerButton>
+            </button>
+
+            {/* Botón agregar producto destacado */}
+            {featured && (
+              <button
+                onClick={() => addItem(featured.clave)}
+                className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-indigo-300 hover:text-indigo-700"
+              >
+                Agregar {featured.clave}
+              </button>
+            )}
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-muted">
+          <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-gray-500">
             <div className="flex items-center gap-2">
               ✅ Garantía en todos los productos
-
-
             </div>
             <div className="flex items-center gap-2">
               🚚 Envío a obra desde {formatMXN(1500)}
@@ -85,34 +87,54 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Floating featured product */}
-        <div className="relative mx-auto w-full max-w-sm">
-          <div className="animate-float relative rounded-[28px] border border-border/80 bg-surface/60 p-6 shadow-[0_30px_80px_-20px_rgba(127,90,240,0.35)] backdrop-blur">
-            <div className="group relative flex h-64 items-center justify-center overflow-hidden rounded-2xl">
-              <ProductVisual visual={featured.visual} className="relative flex h-full w-full items-center justify-center overflow-hidden" />
-            </div>
-            <div className="mt-5 flex items-start justify-between">
-              <div>
-                <p className="font-display text-lg font-medium">{featured.name}</p>
-                <p className="text-sm text-muted">{featured.tagline}</p>
+        {/* Tarjeta del producto destacado */}
+        {featured && (
+          <div className="relative mx-auto w-full max-w-sm">
+            <div className="relative rounded-3xl border border-gray-200 bg-white/70 p-6 shadow-2xl shadow-indigo-100/50 backdrop-blur">
+              {/* Icono visual */}
+              <div className="flex h-56 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-50 to-emerald-50">
+                <Package className="h-24 w-24 text-indigo-300" strokeWidth={1} />
               </div>
-              <p className="font-mono-ui text-lg font-medium text-mint-soft">
-                {formatMXN(featured.price)}
-              </p>
-            </div>
 
-            {/* orbiting badge */}
-            <div className="pointer-events-none absolute -top-6 right-10 hidden h-1 w-1 sm:block">
-              <div className="animate-orbit relative">
-                <span className="flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full border border-border/80 bg-surface px-3 py-1 font-mono-ui text-[11px] text-mint-soft shadow-lg">
-                  ● en stock
+              <div className="mt-5 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-mono text-xs font-bold text-indigo-600">
+                    {featured.clave}
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-gray-800 line-clamp-2">
+                    {featured.descripcion ?? "Sin descripción"}
+                  </p>
+                </div>
+                <p className="shrink-0 text-lg font-bold text-emerald-600">
+                  {formatMXN(featured.precio ?? 0)}
+                </p>
+              </div>
+
+              {/* Badge de stock */}
+              <div className="absolute -top-3 right-8">
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold shadow-lg ${
+                    (featured.existencia ?? 0) > 0
+                      ? "border-green-200 bg-white text-green-600"
+                      : "border-red-200 bg-white text-red-600"
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      (featured.existencia ?? 0) > 0 ? "bg-green-500" : "bg-red-500"
+                    }`}
+                  />
+                  {(featured.existencia ?? 0) > 0
+                    ? `${featured.existencia} en stock`
+                    : "Agotado"}
                 </span>
               </div>
             </div>
-          </div>
 
-          <div className="absolute -bottom-6 -left-6 -z-10 h-full w-full rounded-[28px] border border-border/60 bg-surface/30" />
-        </div>
+            {/* Tarjeta decorativa detrás */}
+            <div className="absolute -bottom-4 -left-4 -z-10 h-full w-full rounded-3xl border border-gray-100 bg-gray-50/50" />
+          </div>
+        )}
       </div>
     </section>
   );

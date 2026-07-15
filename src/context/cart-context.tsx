@@ -1,3 +1,4 @@
+// ✅ Correcto — primera línea del archivo
 "use client";
 
 import {
@@ -8,10 +9,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import { products, type Product } from "@/lib/products";
+import type { Product } from "@/lib/products";
 
 export type CartLine = {
-  productId: string;
+  clave: string;       // ← antes era productId
   quantity: number;
 };
 
@@ -20,9 +21,9 @@ type CartContextValue = {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (productId: string, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  setQuantity: (productId: string, quantity: number) => void;
+  addItem: (clave: string, quantity?: number) => void;
+  removeItem: (clave: string) => void;
+  setQuantity: (clave: string, quantity: number) => void;
   clear: () => void;
   itemCount: number;
   subtotal: number;
@@ -32,11 +33,21 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "aether-cart-v1";
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+/**
+ * Recibe los productos como prop porque vienen de Supabase (async).
+ */
+export function CartProvider({
+  products,
+  children,
+}: {
+  products: Product[];
+  children: React.ReactNode;
+}) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
+  // Hidratar desde localStorage
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -47,32 +58,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setHydrated(true);
   }, []);
 
+  // Persistir en localStorage
   useEffect(() => {
     if (!hydrated) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
   }, [lines, hydrated]);
 
-  const addItem = useCallback((productId: string, quantity = 1) => {
+  const addItem = useCallback((clave: string, quantity = 1) => {
     setLines((prev) => {
-      const existing = prev.find((l) => l.productId === productId);
+      const existing = prev.find((l) => l.clave === clave);
       if (existing) {
         return prev.map((l) =>
-          l.productId === productId ? { ...l, quantity: l.quantity + quantity } : l
+          l.clave === clave ? { ...l, quantity: l.quantity + quantity } : l
         );
       }
-      return [...prev, { productId, quantity }];
+      return [...prev, { clave, quantity }];
     });
     setIsOpen(true);
   }, []);
 
-  const removeItem = useCallback((productId: string) => {
-    setLines((prev) => prev.filter((l) => l.productId !== productId));
+  const removeItem = useCallback((clave: string) => {
+    setLines((prev) => prev.filter((l) => l.clave !== clave));
   }, []);
 
-  const setQuantity = useCallback((productId: string, quantity: number) => {
+  const setQuantity = useCallback((clave: string, quantity: number) => {
     setLines((prev) => {
-      if (quantity <= 0) return prev.filter((l) => l.productId !== productId);
-      return prev.map((l) => (l.productId === productId ? { ...l, quantity } : l));
+      if (quantity <= 0) return prev.filter((l) => l.clave !== clave);
+      return prev.map((l) => (l.clave === clave ? { ...l, quantity } : l));
     });
   }, []);
 
@@ -84,12 +96,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     () =>
       lines
         .map((l) => {
-          const product = products.find((p) => p.id === l.productId);
+          const product = products.find((p) => p.clave === l.clave); // ← antes: p.id
           if (!product) return null;
-          return { product, quantity: l.quantity, lineTotal: product.price * l.quantity };
+          return {
+            product,
+            quantity: l.quantity,
+            lineTotal: (product.precio ?? 0) * l.quantity, // ← antes: product.price
+          };
         })
-        .filter((x): x is { product: Product; quantity: number; lineTotal: number } => !!x),
-    [lines]
+        .filter(
+          (x): x is { product: Product; quantity: number; lineTotal: number } =>
+            !!x
+        ),
+    [lines, products]
   );
 
   const itemCount = useMemo(

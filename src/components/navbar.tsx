@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, ShoppingBag, X } from "lucide-react";
+import { LogOut, Menu, ShoppingBag, User, X } from "lucide-react";
 import { useCart } from "@/context/cart-context";
+import { useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/utils";
 import { ShimmerButton } from "./shimmer-button";
 
@@ -15,6 +16,7 @@ const LINKS = [
 
 export function Navbar() {
   const { itemCount, openCart } = useCart();
+  const { user, isAuthenticated, hydrated, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -34,12 +36,9 @@ export function Navbar() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
         <Link href="/" className="font-display text-lg font-semibold tracking-tight">
-          DIELESA
+          AETHER
           <span className="text-violet-soft">.</span>
         </Link>
-        {/* <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
-          <img src="/img/logodielesa.gif" alt="DIELESA" className="h-20 w-auto" />
-        </Link> */}
 
         <nav className="hidden items-center gap-8 md:flex">
           {LINKS.map((link) => (
@@ -54,6 +53,33 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
+          {/* Login / cuenta */}
+          {hydrated && (
+            isAuthenticated ? (
+              <div className="hidden items-center gap-2 md:flex">
+                <span className="flex items-center gap-2 rounded-full border border-violet-soft/30 bg-violet/10 px-3 py-1.5 text-sm text-ink">
+                  <User className="h-4 w-4 text-violet-soft" />
+                  {user?.name.split(" ")[0]}
+                </span>
+                <button
+                  onClick={logout}
+                  aria-label="Cerrar sesión"
+                  className="rounded-full border border-border/80 p-2.5 text-muted transition-colors hover:border-violet-soft/60 hover:text-ink"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden items-center gap-2 rounded-full border border-border/80 bg-white/[0.03] px-4 py-2 text-sm text-muted transition-colors hover:border-violet-soft/60 hover:text-ink md:flex"
+              >
+                <User className="h-4 w-4" />
+                Iniciar sesión
+              </Link>
+            )
+          )}
+
           <button
             onClick={openCart}
             aria-label="Abrir carrito"
@@ -94,6 +120,30 @@ export function Navbar() {
                 {link.label}
               </a>
             ))}
+
+            {hydrated && (
+              isAuthenticated ? (
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileOpen(false);
+                  }}
+                  className="flex items-center gap-2 text-sm text-muted hover:text-ink"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Cerrar sesión ({user?.name.split(" ")[0]})
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 text-sm text-muted hover:text-ink"
+                >
+                  <User className="h-4 w-4" />
+                  Iniciar sesión
+                </Link>
+              )
+            )}
           </div>
         </nav>
       )}

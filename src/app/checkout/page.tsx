@@ -2,8 +2,9 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Info } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Info, LogIn } from "lucide-react";
 import { useCart } from "@/context/cart-context";
+import { useAuth } from "@/context/auth-context";
 import { formatMXN } from "@/lib/utils";
 import { ProductVisual } from "@/components/product-visual";
 import { ShimmerButton } from "@/components/shimmer-button";
@@ -12,6 +13,7 @@ const SHIPPING = 149;
 
 export default function CheckoutPage() {
   const { detailedLines, subtotal, clear } = useCart();
+  const { isAuthenticated, hydrated, user } = useAuth();
   const [placed, setPlaced] = useState(false);
 
   const shipping = detailedLines.length === 0 ? 0 : subtotal >= 1500 ? 0 : SHIPPING;
@@ -21,6 +23,28 @@ export default function CheckoutPage() {
     e.preventDefault();
     setPlaced(true);
     clear();
+  }
+
+  if (hydrated && !isAuthenticated) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet/15 text-violet-soft">
+          <LogIn className="h-7 w-7" />
+        </div>
+        <h1 className="mt-6 font-display text-2xl font-medium sm:text-3xl">
+          Inicia sesión para continuar tu compra
+        </h1>
+        <p className="mt-3 max-w-sm text-muted">
+          Necesitas una cuenta para finalizar tu pedido y darle seguimiento.
+        </p>
+        <Link href="/login?redirect=/checkout" className="mt-8">
+          <ShimmerButton className="text-base">Iniciar sesión</ShimmerButton>
+        </Link>
+        <Link href="/" className="mt-5 text-sm text-muted hover:text-ink">
+          Volver a la tienda
+        </Link>
+      </main>
+    );
   }
 
   if (placed) {
@@ -47,6 +71,11 @@ export default function CheckoutPage() {
       </Link>
 
       <h1 className="mt-6 font-display text-3xl font-medium sm:text-4xl">Finalizar compra</h1>
+      {user && (
+        <p className="mt-1 text-sm text-muted">
+          Hola, <span className="text-violet-soft">{user.name}</span> — completa tus datos de envío.
+        </p>
+      )}
 
       {detailedLines.length === 0 ? (
         <p className="mt-6 text-muted">
