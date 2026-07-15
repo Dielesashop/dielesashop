@@ -8,6 +8,7 @@ import { useAuth } from "@/context/auth-context";
 import { formatMXN } from "@/lib/utils";
 import { ProductVisual } from "@/components/product-visual";
 import { ShimmerButton } from "@/components/shimmer-button";
+import { supabase } from "@/lib/supabase/client";
 
 const SHIPPING = 149;
 
@@ -19,11 +20,34 @@ export default function CheckoutPage() {
   const shipping = detailedLines.length === 0 ? 0 : subtotal >= 1500 ? 0 : SHIPPING;
   const total = subtotal + shipping;
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setPlaced(true);
-    clear();
+async function handleSubmit(e: FormEvent) {
+  e.preventDefault();
+  if (!user) return;
+
+  const { data: pedido, error } = await supabase
+    .from("pedidos")
+    .insert({ user_id: user.id, total })
+    .select()
+    .single();
+
+  if (error || !pedido) {
+    console.error(error);
+    return;
   }
+
+  const items = detailedLines.map(({ product, quantity, lineTotal }) => ({
+    pedido_id: pedido.id,
+    producto_clave: product.clave,
+    descripcion: product.descripcion,
+    cantidad: quantity,
+    precio_unitario: lineTotal / quantity,
+  }));
+
+  await supabase.from("pedido_items").insert(items);
+
+  setPlaced(true);
+  clear();
+}
 
   if (hydrated && !isAuthenticated) {
     return (
@@ -73,7 +97,11 @@ export default function CheckoutPage() {
       <h1 className="mt-6 font-display text-3xl font-medium sm:text-4xl">Finalizar compra</h1>
       {user && (
         <p className="mt-1 text-sm text-muted">
-          Hola, <span className="text-violet-soft">{user.name}</span> — completa tus datos de envío.
+          {user && (
+            <p className="mt-1 text-sm text-muted">
+              Hola, <span className="text-violet-soft">{user.email}</span> — completa tus datos de envío.
+            </p>
+          )}
         </p>
       )}
 
@@ -137,13 +165,12 @@ export default function CheckoutPage() {
             <h2 className="font-display text-lg font-medium">Resumen</h2>
             <ul className="mt-5 space-y-4">
               {detailedLines.map(({ product, quantity, lineTotal }) => (
-                <li key={product.id} className="flex items-center gap-3">
-                  <ProductVisual
-                    visual={product.visual}
-                    className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg [&>svg]:h-6 [&>svg]:w-6"
-                  />
+                <li key={product.clave} className="flex items-center gap-3">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-surface-2 font-mono-ui text-[10px] text-muted">
+                    {product.clave}
+                  </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium">{product.name}</p>
+                    <p className="text-sm font-medium">{product.descripcion ?? "Sin descripción"}</p>
                     <p className="text-xs text-muted">Cantidad: {quantity}</p>
                   </div>
                   <span className="font-mono-ui text-sm">{formatMXN(lineTotal)}</span>

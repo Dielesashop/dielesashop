@@ -8,10 +8,11 @@ import { useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/utils";
 import { ShimmerButton } from "./shimmer-button";
 
+
 const LINKS = [
-  { href: "#catalogo", label: "Catálogo" },
-  { href: "#nosotros", label: "Nosotros" },
-  { href: "#opiniones", label: "Opiniones" },
+  { href: "/#catalogo", label: "Catalogo" },
+  { href: "/#nosotros", label: "Nosotros" },
+  { href: "/#opiniones", label: "Opiniones" },
 ];
 
 export function Navbar() {
@@ -19,6 +20,7 @@ export function Navbar() {
   const { user, isAuthenticated, hydrated, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -59,7 +61,7 @@ export function Navbar() {
               <div className="hidden items-center gap-2 md:flex">
                 <span className="flex items-center gap-2 rounded-full border border-violet-soft/30 bg-violet/10 px-3 py-1.5 text-sm text-ink">
                   <User className="h-4 w-4 text-violet-soft" />
-                  {user?.name.split(" ")[0]}
+                  {user?.email?.split("@")[0]}
                 </span>
                 <button
                   onClick={logout}
@@ -131,7 +133,7 @@ export function Navbar() {
                   className="flex items-center gap-2 text-sm text-muted hover:text-ink"
                 >
                   <LogOut className="h-4 w-4" />
-                  Cerrar sesión ({user?.name.split(" ")[0]})
+                  Cerrar sesión ({user?.email?.split("@")[0]})
                 </button>
               ) : (
                 <Link
