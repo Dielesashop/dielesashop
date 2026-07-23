@@ -20,7 +20,7 @@ export function FeatureBento() {
 
       <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3 lg:grid-cols-4">
         {/* Historia — tarjeta grande */}
-        <div className="group relative col-span-1 overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-violet/15 via-surface to-surface p-8 md:col-span-2 lg:col-span-2 lg:row-span-2">
+        {/* <div className="group relative col-span-1 overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-violet/15 via-surface to-surface p-8 md:col-span-2 lg:col-span-2 lg:row-span-2">
           <Zap className="h-8 w-8 text-violet-soft" strokeWidth={1.4} />
           <h3 className="mt-6 font-display text-2xl font-medium">
             38 años de experiencia.
@@ -35,7 +35,7 @@ export function FeatureBento() {
             className="pointer-events-none absolute -bottom-16 -right-16 h-56 w-56 rounded-full bg-violet/20 blur-3xl transition-opacity duration-500 group-hover:opacity-80"
             aria-hidden
           />
-        </div>
+        </div> */}
 
         {/* Qué vendemos */}
         <div className="group relative overflow-hidden rounded-3xl border border-border/80 bg-surface p-8">
@@ -46,7 +46,7 @@ export function FeatureBento() {
           </div>
           <h3 className="mt-5 font-display text-lg font-medium">Eléctrico · Ferretero · Automatización</h3>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            Todo lo que necesitas en un solo lugar, con asesoría técnica real.
+            Todo lo que necesitas en un solo lugar. Desde herramientas y materiales eléctricos hasta soluciones de automatización para tu hogar o negocio.
           </p>
         </div>
 

@@ -24,29 +24,25 @@ async function handleSubmit(e: FormEvent) {
   e.preventDefault();
   if (!user) return;
 
-  const { data: pedido, error } = await supabase
-    .from("pedidos")
-    .insert({ user_id: user.id, total })
-    .select()
-    .single();
+  const res = await fetch("/api/checkout/confirm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId: user.id,
+      items: detailedLines.map(({ product, quantity }) => ({
+        clave: product.clave,
+        descripcion: product.descripcion,
+        quantity,
+        precio: product.precio,
+      })),
+    }),
+  });
 
-  if (error || !pedido) {
-    console.error(error);
-    return;
+  const result = await res.json();
+  if (result.success) {
+    setPlaced(true);
+    clear();
   }
-
-  const items = detailedLines.map(({ product, quantity, lineTotal }) => ({
-    pedido_id: pedido.id,
-    producto_clave: product.clave,
-    descripcion: product.descripcion,
-    cantidad: quantity,
-    precio_unitario: lineTotal / quantity,
-  }));
-
-  await supabase.from("pedido_items").insert(items);
-
-  setPlaced(true);
-  clear();
 }
 
   if (hydrated && !isAuthenticated) {

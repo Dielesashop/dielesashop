@@ -38,7 +38,7 @@ export function Navbar() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
         <Link href="/" className="font-display text-lg font-semibold tracking-tight">
-          AETHER
+          DIELESA
           <span className="text-violet-soft">.</span>
         </Link>
 
@@ -95,9 +95,6 @@ export function Navbar() {
             )}
           </button>
 
-          <div className="hidden md:block">
-            <ShimmerButton onClick={openCart}>Comprar ahora</ShimmerButton>
-          </div>
 
           <button
             className="rounded-full border border-border/80 p-2.5 md:hidden"

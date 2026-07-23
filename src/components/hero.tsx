@@ -1,9 +1,9 @@
 "use client";
 
-
 import { ArrowRight, Sparkles, Package } from "lucide-react";
 import type { Product } from "@/lib/products";
 import { useCart } from "@/context/cart-context";
+import BlurText from "@/components/blurtext";
 
 function formatMXN(value: number) {
   return value.toLocaleString("es-MX", {
@@ -22,8 +22,14 @@ export function Hero({ featured }: { featured: Product | null }) {
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-gray-50" />
         <div className="absolute -top-1/3 left-1/4 h-[36rem] w-[36rem] animate-pulse rounded-full bg-indigo-400/20 blur-[110px]" />
-        <div className="absolute -top-1/4 right-1/4 h-[30rem] w-[30rem] animate-pulse rounded-full bg-emerald-400/15 blur-[110px]" style={{ animationDelay: "2s" }} />
-        <div className="absolute bottom-0 left-1/3 h-[26rem] w-[26rem] animate-pulse rounded-full bg-amber-400/10 blur-[110px]" style={{ animationDelay: "4s" }} />
+        <div
+          className="absolute -top-1/4 right-1/4 h-[30rem] w-[30rem] animate-pulse rounded-full bg-emerald-400/15 blur-[110px]"
+          style={{ animationDelay: "2s" }}
+        />
+        <div
+          className="absolute bottom-0 left-1/3 h-[26rem] w-[26rem] animate-pulse rounded-full bg-amber-400/10 blur-[110px]"
+          style={{ animationDelay: "4s" }}
+        />
       </div>
 
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
@@ -34,23 +40,28 @@ export function Hero({ featured }: { featured: Product | null }) {
             Catálogo 2026 ya disponible
           </div>
 
-          <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-            Soluciones que
-            <br />
-            energizan{" "}
-            <span className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-500 bg-clip-text text-transparent">
-              tu proyecto
-            </span>
-          </h1>
+          {/* Título con BlurText — cada línea animada por separado */}
+          <div className="mt-6">
+            <BlurText
+              text="Productos de ferretería, material eléctrico y automatización industrial"
+              delay={120}
+              animateBy="words"
+              direction="top"
+              className="text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl"
+            />
+          </div>
 
-          <p className="mt-6 max-w-lg text-lg leading-relaxed text-gray-500">
-            DIELESA integra ferretería, material eléctrico y automatización
-            industrial en un solo lugar. Herramientas confiables, componentes
-            certificados y asesoría técnica para que tu obra no se detenga.
-          </p>
+          {/* Descripción
+          <BlurText
+            text="DIELESA integra ferretería, material eléctrico y automatización industrial en un solo lugar. Herramientas confiables, componentes certificados y asesoría técnica para que tu obra no se detenga."
+            delay={40}
+            animateBy="words"
+            direction="bottom"
+            stepDuration={0.3}
+            className="mt-6 max-w-lg text-lg leading-relaxed text-gray-500"
+          /> */}
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
-            {/* Botón ver catálogo */}
             <button
               onClick={() =>
                 document
@@ -63,7 +74,6 @@ export function Hero({ featured }: { featured: Product | null }) {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
 
-            {/* Botón agregar producto destacado */}
             {featured && (
               <button
                 onClick={() => addItem(featured.clave)}
@@ -75,15 +85,11 @@ export function Hero({ featured }: { featured: Product | null }) {
           </div>
 
           <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              ✅ Garantía en todos los productos
-            </div>
+            <div className="flex items-center gap-2">✅ Garantía en todos los productos</div>
             <div className="flex items-center gap-2">
               🚚 Envío a obra desde {formatMXN(1500)}
             </div>
-            <div className="flex items-center gap-2">
-              🛠️ Más de 10,000 productos en stock
-            </div>
+            <div className="flex items-center gap-2">🛠️ Más de 10,000 productos en stock</div>
           </div>
         </div>
 
@@ -91,7 +97,6 @@ export function Hero({ featured }: { featured: Product | null }) {
         {featured && (
           <div className="relative mx-auto w-full max-w-sm">
             <div className="relative rounded-3xl border border-gray-200 bg-white/70 p-6 shadow-2xl shadow-indigo-100/50 backdrop-blur">
-              {/* Icono visual */}
               <div className="flex h-56 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-50 to-emerald-50">
                 <Package className="h-24 w-24 text-indigo-300" strokeWidth={1} />
               </div>

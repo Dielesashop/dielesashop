@@ -1,33 +1,55 @@
 "use client";
-
 import { useMemo, useState } from "react";
 import { Search, X, PackageSearch } from "lucide-react";
 import type { Product } from "@/lib/products";
+import { useCart } from "@/context/cart-context";
+import { ProductCard } from "./product-card";
+import TextType from "./texttype";
 
 export function ProductGrid({ products }: { products: Product[] }) {
   const [query, setQuery] = useState("");
+  const { addItem } = useCart();
 
-const filtered = useMemo(() => {
-  const q = query.trim().toLowerCase();
-
-  if (!q) return products.slice(0, 25); // sin búsqueda → solo los primeros 25
-
-  return products.filter((p) =>
-    [p.clave, p.descripcion ?? ""].some((field) =>
-      field.toLowerCase().includes(q)
-    )
-  ); // con búsqueda → busca en TODOS
-}, [query, products]);
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return products.slice(0, 25);
+    return products.filter((p) =>
+      [p.clave, p.descripcion ?? ""].some((field) =>
+        field.toLowerCase().includes(q)
+      )
+    );
+  }, [query, products]);
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
+    <section id="catalogo" className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
       {/* Título */}
       <div className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-wider text-indigo-600">
-          Catálogo
+        <p className="text-sm font-semibold uppercase tracking-wider text-orange-500">
+          <TextType
+            text={["Catálogo"]}
+            as="span"
+            typingSpeed={75}
+            deletingSpeed={50}
+            pauseDuration={99999}
+            loop={false}
+            showCursor
+            cursorCharacter="_"
+            cursorBlinkDuration={0.5}
+          />
         </p>
         <h2 className="mt-1 text-2xl font-bold text-gray-800">
-          Inventario de Productos
+          <TextType
+            text={["Inventario de Productos", "Encuentra lo que necesitas"]}
+            as="span"
+            typingSpeed={60}
+            deletingSpeed={40}
+            pauseDuration={2500}
+            loop
+            showCursor
+            cursorCharacter="_"
+            cursorBlinkDuration={0.5}
+            initialDelay={800}
+          />
         </h2>
         <p className="mt-1 text-sm text-gray-500">
           {products.length} producto{products.length !== 1 ? "s" : ""} en total
@@ -78,50 +100,7 @@ const filtered = useMemo(() => {
         /* Grid de tarjetas */
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((p) => (
-            <div
-              key={p.clave}
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-            >
-              {/* Clave */}
-              <p className="font-mono text-xs font-bold text-indigo-600">
-                {p.clave}
-              </p>
-
-              {/* Descripción */}
-              <h3 className="mt-2 text-sm font-semibold text-gray-800 line-clamp-2">
-                {p.descripcion ?? "Sin descripción"}
-              </h3>
-
-              {/* Precio y existencia */}
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-lg font-bold text-gray-800">
-                  $
-                  {(p.precio ?? 0).toLocaleString("es-MX", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-
-                <span
-                  className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                    (p.existencia ?? 0) > 0
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {(p.existencia ?? 0) > 0
-                    ? `${p.existencia} en stock`
-                    : "Agotado"}
-                </span>
-              </div>
-
-              {/* Fecha */}
-              {p.actualizado_en && (
-                <p className="mt-3 text-[11px] text-gray-400">
-                  Actualizado:{" "}
-                  {new Date(p.actualizado_en).toLocaleDateString("es-MX")}
-                </p>
-              )}
-            </div>
+            <ProductCard key={p.clave} product={p} onAdd={addItem} />
           ))}
         </div>
       )}

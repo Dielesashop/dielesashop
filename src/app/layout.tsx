@@ -2,18 +2,21 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "@/context/cart-context";
 import { AuthProvider } from "@/context/auth-context";
+import { getProducts } from "@/lib/supabase/products";
 
 export const metadata: Metadata = {
-  title: "AETHER — Objetos para la próxima década",
+  title: "Dielesa - productos de ferretería, material eléctrico y automatización industrial",
   description:
-    "AETHER diseña audio, wearables y objetos inteligentes para 2026. Envíos a todo México.",
+    "Dielesa - productos de ferretería, material eléctrico y automatización industrial. Envío a todo México. Compra en línea y recibe en tu obra o negocio.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const products = await getProducts();
+
   return (
     <html lang="es" className="h-full antialiased">
       <head>
@@ -26,7 +29,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <AuthProvider>
-          <CartProvider products={[]}>
+          <CartProvider products={products}>
             {children}
           </CartProvider>
         </AuthProvider>

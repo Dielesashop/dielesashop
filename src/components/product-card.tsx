@@ -1,135 +1,216 @@
-import { useRef, useState } from "react";
-import { Plus, Package } from "lucide-react";
+import styled from "styled-components";
 import type { Product } from "@/lib/products";
-import { cn } from "@/utils/cn";
-import { useCart } from "@/context/cart-context";
 
-function formatMXN(value: number) {
-  return value.toLocaleString("es-MX", {
-    style: "currency",
-    currency: "MXN",
-    minimumFractionDigits: 2,
-  });
+interface Props {
+  product: Product;
+  onAdd: (clave: string) => void;
 }
 
-export function ProductCard({ product }: { product: Product }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ x: 50, y: 0 });
-  const [justAdded, setJustAdded] = useState(false);
-  const { addItem } = useCart();
-
-  const stock = product.existencia ?? 0;
-  const lowStock = stock > 0 && stock <= 20;
-
-  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    setPos({
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
-    });
+const StyledWrapper = styled.div`
+  .card {
+    width: 100%;
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s;
+    position: relative;
   }
 
-  function handleAdd() {
-    addItem(product.clave);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 1400);
+  .wrapper {
+    height: fit-content;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
   }
+
+  .card-image {
+    width: 100%;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2em;
+    font-weight: 900;
+    font-family: monospace;
+    color: #1a1a1a;
+    transition: all 0.3s;
+    text-align: center;
+    padding: 0 8px;
+    overflow: hidden;
+    line-height: 1.2;
+  }
+
+  .content {
+    height: fit-content;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .product-key {
+    font-size: 0.68em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #6366f1;
+    font-family: monospace;
+  }
+
+  .title {
+    font-size: 0.78em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: #4d4d4d;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .price {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+
+  .stock-badge {
+    font-size: 0.68em;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: auto;
+  }
+
+  .in-stock {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  .out-stock {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .card-btn {
+    margin-top: 4px;
+    width: 100%;
+    height: 40px;
+    background-color: rgb(24, 24, 24);
+    border: none;
+    border-radius: 40px;
+    color: white;
+    transition: all 0.3s;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.78em;
+    letter-spacing: 0.03em;
+  }
+
+  .card-btn:disabled {
+    background-color: #d1d5db;
+    cursor: not-allowed;
+  }
+
+  .card:hover .card-image {
+    height: 90px;
+    font-size: 1.6em;
+  }
+
+  .card:hover .card-btn:not(:disabled) {
+    margin-top: 0;
+  }
+
+  .card-btn:not(:disabled):hover {
+    background-color: greenyellow;
+    color: rgb(35, 35, 35);
+  }
+
+  .card:hover {
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .tag {
+    position: absolute;
+    background-color: #ff6d1f;
+    color: rgb(0, 0, 0);
+    left: 12px;
+    top: 12px;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.72em;
+    font-weight: 600;
+  }
+`;
+
+export function ProductCard({ product, onAdd }: Props) {
+  const inStock = (product.existencia ?? 0) > 0;
+  const initials = product.clave.split("-")[0] ?? "???";
 
   return (
-    <div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-100/50"
-    >
-      {/* Cursor spotlight */}
-      <div
-        className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: `radial-gradient(320px circle at ${pos.x}% ${pos.y}%, rgba(99,102,241,0.08), transparent 65%)`,
-        }}
-        aria-hidden
-      />
+    <StyledWrapper>
+      <div className="card">
+        {/* Imagen / iniciales */}
+        <div className="wrapper">
+          <div className="card-image">{initials}</div>
 
-      {/* Badge de stock */}
-      <div className="absolute left-3 top-3 z-20">
-        {stock === 0 && (
-          <span className="rounded-full bg-red-100 px-3 py-1 text-[11px] font-bold text-red-600">
-            Agotado
-          </span>
-        )}
-        {lowStock && (
-          <span className="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold text-amber-700">
-            ¡Quedan {stock}!
-          </span>
-        )}
-      </div>
+          {/* Contenido */}
+          <div className="content" style={{ width: "100%" }}>
+            <p className="product-key">{product.clave}</p>
+            <p className="title">{product.descripcion ?? "Sin descripción"}</p>
 
-      {/* Ícono visual */}
-      <div className="flex h-44 w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-emerald-50">
-        <Package className="h-16 w-16 text-indigo-200" strokeWidth={1} />
-      </div>
+            <div className="price-row" style={{ width: "100%" }}>
+              <span className="price">
+                $
+                {(product.precio ?? 0).toLocaleString("es-MX", {
+                  minimumFractionDigits: 2,
+                })}
+              </span>
+              <span className={`stock-badge ${inStock ? "in-stock" : "out-stock"}`}>
+                {inStock ? `${product.existencia} en stock` : "Agotado"}
+              </span>
+            </div>
 
-      {/* Info */}
-      <div className="relative z-20 p-5">
-        {/* Clave */}
-        <p className="font-mono text-xs font-bold text-indigo-600">
-          {product.clave}
-        </p>
-
-        {/* Descripción */}
-        <h3 className="mt-1.5 text-sm font-semibold text-gray-800 line-clamp-2">
-          {product.descripcion ?? "Sin descripción"}
-        </h3>
-
-        {/* Existencia */}
-        <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-400">
-          <span
-            className={cn(
-              "h-1.5 w-1.5 rounded-full",
-              stock > 0 ? "bg-green-500" : "bg-red-400"
+            {product.actualizado_en && (
+              <p
+                style={{
+                  fontSize: "0.65em",
+                  color: "#adadad",
+                  marginTop: "2px",
+                }}
+              >
+                Actualizado:{" "}
+                {new Date(product.actualizado_en).toLocaleDateString("es-MX")}
+              </p>
             )}
-          />
-          {stock > 0 ? `${stock} en stock` : "Sin existencia"}
+          </div>
+
+          {/* Botón */}
+          <button
+            className="card-btn"
+            onClick={() => inStock && onAdd(product.clave)}
+            disabled={!inStock}
+          >
+            {inStock ? "AGREGAR AL CARRITO" : "AGOTADO"}
+          </button>
         </div>
 
-        {/* Precio */}
-        <div className="mt-3">
-          <span className="text-xl font-bold text-gray-800">
-            {formatMXN(product.precio ?? 0)}
-          </span>
-        </div>
-
-        {/* Botón agregar */}
-        <button
-          onClick={handleAdd}
-          disabled={stock === 0}
-          className={cn(
-            "relative mt-4 flex w-full items-center justify-center gap-2 overflow-hidden rounded-full py-2.5 text-sm font-semibold transition-all duration-300 active:scale-[0.98]",
-            stock > 0
-              ? "bg-indigo-600 text-white hover:bg-indigo-700"
-              : "cursor-not-allowed bg-gray-100 text-gray-400"
-          )}
-        >
-          <span
-            className={cn(
-              "flex items-center gap-2 transition-transform duration-300",
-              justAdded && "translate-y-8"
-            )}
-          >
-            <Plus className="h-4 w-4" strokeWidth={2.4} />
-            {stock > 0 ? "Agregar al carrito" : "No disponible"}
-          </span>
-          <span
-            className={cn(
-              "absolute inset-0 flex items-center justify-center gap-2 bg-emerald-500 text-white transition-transform duration-300",
-              justAdded ? "translate-y-0" : "-translate-y-full"
-            )}
-          >
-            ✓ ¡Agregado!
-          </span>
-        </button>
+        {/* Badge de stock como tag */}
+        {inStock && <p className="tag">Disponible</p>}
       </div>
-    </div>
+    </StyledWrapper>
   );
 }
