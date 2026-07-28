@@ -9,6 +9,8 @@ import { Footer } from "@/components/footer";
 import type { ComponentType } from "react";
 import { CartDrawer } from "@/components/cart-drawer";
 import { getProducts } from "@/lib/supabase/products";
+import { WhatsAppButton } from "@/components/whatsup-botton";
+
 
 // Vuelve a pedir los productos a Supabase cada 60s como máximo (ISR).
 export const revalidate = 60;
@@ -22,12 +24,15 @@ export default async function Home() {
     <>
       <Navbar />
       <main>
+        <div className="bg-slate-100 text-slate-900 antialiased">
+          <WhatsAppButton />
+        </div>
         <HeroWithFeatured featured={featured} />
         <TrustMarquee />
         <FeatureBento />
         <ProductGrid products={products} />
         <Testimonials />
-        <NewsletterCta />
+        {/* <NewsletterCta /> */}
       </main>
       <Footer />
       <CartDrawer />

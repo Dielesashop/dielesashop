@@ -1,5 +1,8 @@
+"use client";
+
 import styled from "styled-components";
 import type { Product } from "@/lib/products";
+import { precioNeto } from "@/lib/products";
 
 interface Props {
   product: Product;
@@ -173,10 +176,12 @@ export function ProductCard({ product, onAdd }: Props) {
             <p className="title">{product.descripcion ?? "Sin descripción"}</p>
 
             <div className="price-row" style={{ width: "100%" }}>
+              {/* ✅ PRECIO NETO: base ×1.30 (margen) ×1.16 (IVA) */}
               <span className="price">
                 $
-                {(product.precio ?? 0).toLocaleString("es-MX", {
+                {precioNeto(product.precio ?? 0).toLocaleString("es-MX", {
                   minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
                 })}
               </span>
               <span className={`stock-badge ${inStock ? "in-stock" : "out-stock"}`}>

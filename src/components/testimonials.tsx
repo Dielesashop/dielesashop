@@ -3,22 +3,22 @@ import { SectionHeading } from "./section-heading";
 
 const REVIEWS = [
   {
-    name: "Camila R.",
-    role: "Diseñadora de producto",
+    name: "Carlos R.",
+    role: "Contratista Eléctrico",
     quote:
-      "Los Halo TWS cambiaron mis llamadas de trabajo. La cancelación de ruido se siente de otra categoría de precio.",
+      "Los tableros y disyuntores que compré aquí son de primera calidad. La seguridad eléctrica no se negocia y sus productos cumplen todas las normas.",
   },
   {
-    name: "Diego M.",
-    role: "Corredor de montaña",
+    name: "Miguel S.",
+    role: "Maestro de Obra",
     quote:
-      "Uso el Pulse Band para entrenar desde hace tres meses y la batería sigue rindiendo como el primer día.",
+      "Llevo meses usando el taladro percutor inalámbrico en obra pesada y la potencia es constante. La mejor inversión para mi caja de herramientas.",
   },
   {
-    name: "Fernanda L.",
-    role: "Streamer",
+    name: "Lucía P.",
+    role: "Aficionada al DIY",
     quote:
-      "El Orbit 360 llena mi cuarto de sonido sin distorsión, incluso a volumen alto. Se ve increíble en cámara.",
+      "Encontré todo el kit de iluminación LED para renovar mi casa. El asesoramiento técnico me ayudó a elegir los cables correctos y ahorrar energía.",
   },
 ];
 

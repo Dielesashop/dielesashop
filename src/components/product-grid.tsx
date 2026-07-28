@@ -1,4 +1,5 @@
 "use client";
+
 import { useMemo, useState } from "react";
 import { Search, X, PackageSearch } from "lucide-react";
 import type { Product } from "@/lib/products";
