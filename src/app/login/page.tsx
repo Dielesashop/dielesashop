@@ -1,39 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { supabase } from "@/lib/supabase/client";
+import ShapeGrid from "@/components/ShapeGrid";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [nombre, setNombre] = useState("");
-  const [domicilio, setDomicilio] = useState("");
-  const [codigoPostal, setCodigoPostal] = useState("");
-  const [colonia, setColonia] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [particles, setParticles] = useState<
-    { id: number; x: number; y: number; size: number; duration: number; delay: number }[]
-  >([]);
 
   useEffect(() => {
     setMounted(true);
-    // Generar partículas solo en cliente
-    const generated = Array.from({ length: 20 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 6 + 2,
-      duration: Math.random() * 10 + 8,
-      delay: Math.random() * 5,
-    }));
-    setParticles(generated);
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -41,71 +20,55 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      setError(error.message);
+    // Simulación de login (reemplazar con supabase en proyecto real)
+    setTimeout(() => {
+      if (email === "test@test.com" && password === "123456") {
+        alert("¡Login exitoso!");
+      } else {
+        setError("Correo o contraseña incorrectos.");
+      }
       setLoading(false);
-    } else {
-      router.push("/");
-    }
+    }, 1200);
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0a0a1a] flex items-center justify-center px-4">
+    <div className="relative min-h-screen overflow-hidden flex items-center justify-center px-4" style={{ background: '#120F17' }}>
 
-      {/* Fondo degradado animado */}
+      {/* Fondo ShapeGrid */}
       <div className="absolute inset-0 z-0">
-        <div
-          className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full opacity-30"
-          style={{
-            background: "radial-gradient(circle, #7c3aed, transparent 70%)",
-            animation: "pulse-slow 8s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full opacity-20"
-          style={{
-            background: "radial-gradient(circle, #2563eb, transparent 70%)",
-            animation: "pulse-slow 10s ease-in-out infinite reverse",
-          }}
-        />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-10"
-          style={{
-            background: "radial-gradient(circle, #ec4899, transparent 70%)",
-            animation: "pulse-slow 12s ease-in-out infinite",
-          }}
+        <ShapeGrid
+          speed={0.5}
+          squareSize={40}
+          direction="diagonal"
+          borderColor="#2F293A"
+          hoverFillColor="#222"
+          shape="square"
+          hoverTrailAmount={0}
         />
       </div>
 
-      {/* Grid de líneas */}
-      <div
-        className="absolute inset-0 z-0 opacity-10"
+      {/* Botón regresar */}
+      <button
+        onClick={() => window.location.href = '/' }
+        className="absolute top-5 left-5 z-20 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(124,58,237,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.3) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
+          background: "rgba(255,255,255,0.07)",
+          border: "1px solid rgba(255,255,255,0.15)",
+          color: "rgba(255,255,255,0.7)",
         }}
-      />
-
-      {/* Partículas flotantes */}
-      {mounted &&
-        particles.map((p) => (
-          <div
-            key={p.id}
-            className="absolute rounded-full z-0"
-            style={{
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              width: p.size,
-              height: p.size,
-              background: "rgba(124,58,237,0.6)",
-              boxShadow: "0 0 10px rgba(124,58,237,0.8)",
-              animation: `float ${p.duration}s ease-in-out ${p.delay}s infinite alternate`,
-            }}
-          />
-        ))}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "rgba(124,58,237,0.2)";
+          e.currentTarget.style.borderColor = "rgba(124,58,237,0.6)";
+          e.currentTarget.style.color = "#fff";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "rgba(255,255,255,0.07)";
+          e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)";
+          e.currentTarget.style.color = "rgba(255,255,255,0.7)";
+        }}
+      >
+        ← Regresar
+      </button>
 
       {/* Card principal */}
       <div
@@ -153,7 +116,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
 
             {/* Campo Email */}
-            <div className="group">
+            <div>
               <label className="block text-xs font-semibold mb-2 tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
                 Correo electrónico
               </label>
@@ -166,10 +129,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@correo.com"
                   className="w-full pl-11 pr-4 py-3.5 rounded-xl text-white placeholder-gray-600 outline-none transition-all duration-300"
-                  style={{
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                  }}
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
                   onFocus={(e) => {
                     e.currentTarget.style.border = "1px solid rgba(124,58,237,0.8)";
                     e.currentTarget.style.boxShadow = "0 0 20px rgba(124,58,237,0.2)";
@@ -198,10 +158,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full pl-11 pr-12 py-3.5 rounded-xl text-white placeholder-gray-600 outline-none transition-all duration-300"
-                  style={{
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                  }}
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
                   onFocus={(e) => {
                     e.currentTarget.style.border = "1px solid rgba(124,58,237,0.8)";
                     e.currentTarget.style.boxShadow = "0 0 20px rgba(124,58,237,0.2)";
@@ -282,12 +239,12 @@ export default function LoginPage() {
           {/* Link a registro */}
           <p className="text-center text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
             ¿No tienes cuenta?{" "}
-            <Link
+            <a
               href="/register"
               className="font-semibold transition-all duration-200"
               style={{ color: "#a78bfa" }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#7c3aed";
+                e.currentTarget.style.color = "#c4b5fd";
                 e.currentTarget.style.textShadow = "0 0 10px rgba(124,58,237,0.5)";
               }}
               onMouseLeave={(e) => {
@@ -296,21 +253,13 @@ export default function LoginPage() {
               }}
             >
               Regístrate aquí
-            </Link>
+            </a>
           </p>
         </div>
       </div>
 
       {/* Animaciones CSS */}
       <style>{`
-        @keyframes pulse-slow {
-          0%, 100% { transform: scale(1); opacity: 0.3; }
-          50% { transform: scale(1.15); opacity: 0.5; }
-        }
-        @keyframes float {
-          0% { transform: translateY(0px) scale(1); }
-          100% { transform: translateY(-30px) scale(1.2); }
-        }
         @keyframes gradient-border {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
