@@ -3,10 +3,50 @@ import { SectionHeading } from "./section-heading";
 import { FacebookIcon, InstagramIcon, WhatsappIcon, TiktokIcon } from "./social-icons";
 
 const SOCIALS = [
-  { name: "Facebook", icon: FacebookIcon, href: "#" },
-  { name: "Instagram", icon: InstagramIcon, href: "#" },
-  { name: "WhatsApp", icon: WhatsappIcon, href: "#" },
-  { name: "TikTok", icon: TiktokIcon, href: "#" },
+  {
+    name: "Facebook",
+    icon: FacebookIcon,
+    href: "#",
+    iconColor: "text-blue-600",
+    bgColor: "bg-blue-50",
+    borderColor: "border-blue-100",
+    hoverBorder: "hover:border-blue-300",
+    hoverBg: "hover:bg-blue-50",
+    ringColor: "hover:ring-blue-200/60",
+  },
+  {
+    name: "Instagram",
+    icon: InstagramIcon,
+    href: "#",
+    iconColor: "text-pink-500",
+    bgColor: "bg-pink-50",
+    borderColor: "border-pink-100",
+    hoverBorder: "hover:border-pink-300",
+    hoverBg: "hover:bg-pink-50",
+    ringColor: "hover:ring-pink-200/60",
+  },
+  {
+    name: "WhatsApp",
+    icon: WhatsappIcon,
+    href: "#",
+    iconColor: "text-green-500",
+    bgColor: "bg-green-50",
+    borderColor: "border-green-100",
+    hoverBorder: "hover:border-green-300",
+    hoverBg: "hover:bg-green-50",
+    ringColor: "hover:ring-green-200/60",
+  },
+  {
+    name: "TikTok",
+    icon: TiktokIcon,
+    href: "#",
+    iconColor: "text-slate-800",
+    bgColor: "bg-slate-100",
+    borderColor: "border-slate-200",
+    hoverBorder: "hover:border-slate-300",
+    hoverBg: "hover:bg-slate-100",
+    ringColor: "hover:ring-slate-200/60",
+  },
 ];
 
 // 🔧 Cambia esta dirección por la real para que el mapa apunte al lugar correcto
@@ -32,6 +72,7 @@ export function FeatureBento() {
             <Wrench className="h-6 w-6 text-mint-soft" strokeWidth={1.4} />
             <Cog className="h-6 w-6 text-mint-soft" strokeWidth={1.4} />
           </div>
+
           <h3 className="mt-5 font-display text-lg font-medium">
             Eléctrico · Ferretero · Automatización
           </h3>
@@ -47,15 +88,40 @@ export function FeatureBento() {
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">
             Ofertas, novedades y tips de instalación todos los días.
           </p>
-          <div className="mt-5 flex gap-3">
-            {SOCIALS.map(({ name, icon: Icon, href }) => (
+
+          <div className="mt-6 flex gap-4">
+            {SOCIALS.map(({ name, icon: Icon, href, iconColor, bgColor, borderColor, hoverBorder, ringColor }) => (
               <a
                 key={name}
                 href={href}
                 aria-label={name}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border/80 bg-white/[0.03] text-muted transition-colors duration-200 hover:border-violet-soft/60 hover:text-ink"
+                className={[
+                  "group/btn flex flex-col items-center gap-2.5",
+                  "rounded-2xl border p-3.5",
+                  "bg-white",
+                  borderColor,
+                  "ring-2 ring-transparent",
+                  "transition-all duration-250 ease-out",
+                  hoverBorder,
+                  ringColor,
+                  "hover:-translate-y-1 hover:scale-[1.06] hover:shadow-md",
+                ].join(" ")}
               >
-                <Icon className="h-5 w-5" strokeWidth={1.6} />
+                {/* Icono con fondo de color */}
+                <div
+                  className={[
+                    "flex h-12 w-12 items-center justify-center rounded-xl",
+                    bgColor,
+                    "transition-transform duration-250 group-hover/btn:scale-110",
+                  ].join(" ")}
+                >
+                  <Icon className={`h-6 w-6 ${iconColor}`} />
+                </div>
+
+                {/* Nombre de la red */}
+                <span className="text-[11px] font-semibold text-slate-600 leading-none">
+                  {name}
+                </span>
               </a>
             ))}
           </div>

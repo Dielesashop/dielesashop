@@ -6,19 +6,30 @@ import type { Product } from "@/lib/products";
 import { useCart } from "@/context/cart-context";
 import { ProductCard } from "./product-card";
 import TextType from "./texttype";
+import { normalize } from "@/utils/cn"; // ← importa el utilitario
 
 export function ProductGrid({ products }: { products: Product[] }) {
   const [query, setQuery] = useState("");
   const { addItem } = useCart();
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = normalize(query);
+
+    // Sin búsqueda → primeros 25
     if (!q) return products.slice(0, 25);
-    return products.filter((p) =>
-      [p.clave, p.descripcion ?? ""].some((field) =>
-        field.toLowerCase().includes(q)
-      )
-    );
+
+    // Dividimos la query en tokens individuales (cada palabra por separado)
+    const tokens = q.split(" ").filter(Boolean);
+
+    return products.filter((p) => {
+      // Normalizamos los campos del producto
+      const clave       = normalize(p.clave ?? "");
+      const descripcion = normalize(p.descripcion ?? "");
+      const haystack    = `${clave} ${descripcion}`;   // campo unificado de búsqueda
+
+      // El producto debe contener TODOS los tokens en alguno de sus campos
+      return tokens.every((token) => haystack.includes(token));
+    });
   }, [query, products]);
 
   return (
@@ -98,7 +109,6 @@ export function ProductGrid({ products }: { products: Product[] }) {
           </button>
         </div>
       ) : (
-        /* Grid de tarjetas */
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((p) => (
             <ProductCard key={p.clave} product={p} onAdd={addItem} />
