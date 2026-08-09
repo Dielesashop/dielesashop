@@ -7,6 +7,8 @@ import { useCart } from "@/context/cart-context";
 import { useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/utils";
 import { ShimmerButton } from "./shimmer-button";
+import StrokeText from "@/components/stroke-text";
+
 
 
 const LINKS = [
@@ -36,11 +38,25 @@ export function Navbar() {
         scrolled ? "border-b border-border/80 bg-bg/80 backdrop-blur-xl" : "bg-transparent"
       )}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
-        <Link href="/" className="font-display text-lg font-semibold tracking-tight">
-          DIELESA
-          <span className="text-violet-soft">.</span>
-        </Link>
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-10 py-4 lg:px-10">
+<Link href="/" className="block w-fit">
+  <StrokeText
+    text="DIELESA."
+    strokeColor="#ff9a56"
+    fillColor="#ff6d1f"
+    strokeWidth={1.8}
+    drawDuration={2.4}
+    fillDelay={0.15}
+    stagger={0.06}
+    ease="power2.out"
+    trigger="loop"
+    fillMode="wipe"
+    fontSize={40}
+    fontWeight={900}
+    letterSpacing={2}
+    reverse={false}
+  />
+</Link>
 
         <nav className="hidden items-center gap-8 md:flex">
           {LINKS.map((link) => (
