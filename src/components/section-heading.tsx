@@ -1,26 +1,38 @@
 import { cn } from "@/lib/utils";
 
+interface SectionHeadingProps {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  align?: "left" | "center";
+  className?: string;
+}
+
 export function SectionHeading({
   eyebrow,
   title,
   description,
   align = "left",
-}: {
-  eyebrow: string;
-  title: string;
-  description?: string;
-  align?: "left" | "center";
-}) {
+  className,
+}: SectionHeadingProps) {
   return (
-    <div className={cn("max-w-2xl", align === "center" && "mx-auto text-center")}>
-      <p className="font-mono-ui text-xs uppercase tracking-[0.2em] text-mint-soft">
-        {eyebrow}
-      </p>
-      <h2 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+    <div
+      className={cn(
+        "flex flex-col gap-3",
+        align === "center" && "items-center text-center",
+        className
+      )}
+    >
+      {eyebrow && (
+        <span className="text-sm font-semibold uppercase tracking-wider text-orange-600">
+          {eyebrow}
+        </span>
+      )}
+      <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
         {title}
       </h2>
       {description && (
-        <p className="mt-4 text-base leading-relaxed text-muted">{description}</p>
+        <p className="max-w-2xl text-lg text-slate-600">{description}</p>
       )}
     </div>
   );

@@ -10,6 +10,8 @@ import type { ComponentType } from "react";
 import { CartDrawer } from "@/components/cart-drawer";
 import { getProducts } from "@/lib/supabase/products";
 import { WhatsAppButton } from "@/components/whatsup-botton";
+import { ProductRequestForm } from "@/components/product-requestfrom";
+
 
 
 // Vuelve a pedir los productos a Supabase cada 60s como máximo (ISR).
@@ -31,7 +33,8 @@ export default async function Home() {
         <TrustMarquee />
         <FeatureBento />
         <ProductGrid products={products} />
-        <Testimonials />
+        {/* <Testimonials /> */}
+        <ProductRequestForm />
         {/* <NewsletterCta /> */}
       </main>
       <Footer />
