@@ -686,7 +686,7 @@ export function ProductRequestForm() {
                       id="numeroCompras"
                       name="numeroCompras"
                       type="text"
-                      placeholder="Ej. OC-2024-0082"
+                      placeholder="10 digitos"
                       value={form.numeroCompras}
                       onChange={handleChange}
                       className="w-full rounded-2xl border border-slate-200 bg-white py-3.5 pl-12 pr-5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"

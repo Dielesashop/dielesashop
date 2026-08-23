@@ -24,7 +24,7 @@ async function handleSubmit(e: FormEvent) {
   e.preventDefault();
   if (!user) return;
 
-  const res = await fetch("/api/checkout/confirm", {
+  const res = await fetch("/checkout/confirm", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -91,15 +91,11 @@ async function handleSubmit(e: FormEvent) {
       </Link>
 
       <h1 className="mt-6 font-display text-3xl font-medium sm:text-4xl">Finalizar compra</h1>
-      {user && (
-        <p className="mt-1 text-sm text-muted">
-          {user && (
-            <p className="mt-1 text-sm text-muted">
-              Hola, <span className="text-violet-soft">{user.email}</span> — completa tus datos de envío.
-            </p>
-          )}
-        </p>
-      )}
+        {user && (
+          <p className="mt-1 text-sm text-muted">
+            Hola, <span className="text-violet-soft">{user.email}</span> — completa tus datos de envío.
+          </p>
+        )}
 
       {detailedLines.length === 0 ? (
         <p className="mt-6 text-muted">

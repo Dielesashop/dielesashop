@@ -1,13 +1,20 @@
-
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/context/cart-context";
 import { formatMXN } from "@/lib/utils";
 
 export function CartDrawer() {
-  const { isOpen, closeCart, detailedLines, subtotal, setQuantity, removeItem } = useCart();
+  const { isOpen, closeCart, detailedLines, subtotal, setQuantity, removeItem } =
+    useCart();
+  const router = useRouter();
+
+  const handleCheckout = () => {
+    closeCart();
+    router.push("/checkout");
+  };
 
   return (
     <AnimatePresence>
@@ -19,7 +26,7 @@ export function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeCart}
-            className="fixed inset-0 z-[60] bg-black/60 -blur-sm"
+            className="fixed inset-0 z-[60] bg-black/60"
           />
 
           {/* Panel lateral */}
@@ -45,26 +52,25 @@ export function CartDrawer() {
             {/* Contenido */}
             <div className="flex-1 overflow-y-auto px-6 py-6">
               {detailedLines.length === 0 ? (
-                /* Carrito vacío */
                 <div className="flex h-full flex-col items-center justify-center text-center text-gray-400">
-                  <ShoppingBag className="h-10 w-10 text-gray-300" strokeWidth={1.2} />
+                  <ShoppingBag
+                    className="h-10 w-10 text-gray-300"
+                    strokeWidth={1.2}
+                  />
                   <p className="mt-4 text-sm">Tu carrito está vacío.</p>
                   <p className="mt-1 text-xs text-gray-400">
                     Agrega productos del catálogo para empezar.
                   </p>
                 </div>
               ) : (
-                /* Lista de productos */
                 <ul className="space-y-5">
                   {detailedLines.map(({ product, quantity, lineTotal }) => (
                     <li key={product.clave} className="flex gap-4">
-                      {/* Ícono / avatar del producto */}
                       <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-xl font-bold text-indigo-500">
                         {product.clave.slice(0, 2).toUpperCase()}
                       </div>
 
                       <div className="flex flex-1 flex-col justify-between">
-                        {/* Nombre y botón eliminar */}
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <p className="text-sm font-semibold text-gray-800">
@@ -83,11 +89,12 @@ export function CartDrawer() {
                           </button>
                         </div>
 
-                        {/* Cantidad y total de línea */}
                         <div className="mt-2 flex items-center justify-between">
                           <div className="flex items-center gap-1 rounded-full border border-gray-200">
                             <button
-                              onClick={() => setQuantity(product.clave, quantity - 1)}
+                              onClick={() =>
+                                setQuantity(product.clave, quantity - 1)
+                              }
                               className="p-1.5 text-gray-400 transition-colors hover:text-gray-700"
                               aria-label="Disminuir cantidad"
                             >
@@ -97,7 +104,9 @@ export function CartDrawer() {
                               {quantity}
                             </span>
                             <button
-                              onClick={() => setQuantity(product.clave, quantity + 1)}
+                              onClick={() =>
+                                setQuantity(product.clave, quantity + 1)
+                              }
                               className="p-1.5 text-gray-400 transition-colors hover:text-gray-700"
                               aria-label="Aumentar cantidad"
                             >
@@ -120,14 +129,16 @@ export function CartDrawer() {
               <div className="border-t border-gray-200 px-6 py-6">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-500">Subtotal</span>
-                  <span className="font-mono font-bold text-gray-800">{formatMXN(subtotal)}</span>
+                  <span className="font-mono font-bold text-gray-800">
+                    {formatMXN(subtotal)}
+                  </span>
                 </div>
                 <p className="mt-1 text-xs text-gray-400">
                   Envío e impuestos se calculan al pagar.
                 </p>
                 <button
-                  onClick={closeCart}
-                  className="mt-5 w-full rounded-full bg-indigo-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
+                  onClick={handleCheckout}
+                  className="mt-5 w-full rounded-full bg-orange-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-700"
                 >
                   Ir a pagar
                 </button>
