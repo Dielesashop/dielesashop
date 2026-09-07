@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { capturePayPalOrder } from "@/lib/paypal";
-import { db } from "@/db";
-import { orders } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,16 +14,6 @@ export async function POST(req: NextRequest) {
 
     const capture = await capturePayPalOrder(orderId);
     const isCompleted = capture.status === "COMPLETED";
-
-    // Actualiza el estado en la base de datos
-    await db
-      .update(orders)
-      .set({
-        status: isCompleted ? "COMPLETED" : "FAILED",
-        providerResponse: capture as unknown as Record<string, unknown>,
-        updatedAt: new Date(),
-      })
-      .where(eq(orders.providerOrderId, orderId));
 
     if (!isCompleted) {
       return NextResponse.json(

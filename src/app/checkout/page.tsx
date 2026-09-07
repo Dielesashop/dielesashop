@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Info, LogIn } from "lucide-react";
 import { useCart } from "@/context/cart-context";
@@ -9,6 +9,7 @@ import { formatMXN } from "@/lib/utils";
 import { ProductVisual } from "@/components/product-visual";
 import { ShimmerButton } from "@/components/shimmer-button";
 import { supabase } from "@/lib/supabase/client";
+import { PayPalButton } from "@/components/paypal-button";
 
 const SHIPPING = 149;
 
@@ -20,30 +21,43 @@ export default function CheckoutPage() {
   const shipping = detailedLines.length === 0 ? 0 : subtotal >= 1500 ? 0 : SHIPPING;
   const total = subtotal + shipping;
 
-async function handleSubmit(e: FormEvent) {
-  e.preventDefault();
-  if (!user) return;
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
 
-  const res = await fetch("/checkout/confirm", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userId: user.id,
-      items: detailedLines.map(({ product, quantity }) => ({
-        clave: product.clave,
-        descripcion: product.descripcion,
-        quantity,
-        precio: product.precio,
-      })),
-    }),
-  });
+  // Se ejecuta solo cuando PayPal ya capturó el pago con éxito.
+  async function handlePaymentSuccess(transactionId: string) {
+    if (!user) return;
+    setPaying(true);
+    setPayError(null);
+    try {
+      const res = await fetch("/checkout/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          transactionId,
+          items: detailedLines.map(({ product, quantity }) => ({
+            clave: product.clave,
+            descripcion: product.descripcion,
+            quantity,
+            precio: product.precio,
+          })),
+        }),
+      });
 
-  const result = await res.json();
-  if (result.success) {
-    setPlaced(true);
-    clear();
+      const result = await res.json();
+      if (result.success) {
+        setPlaced(true);
+        clear();
+      } else {
+        setPayError(result.error ?? "No se pudo registrar el pedido.");
+      }
+    } catch {
+      setPayError("Ocurrió un error al registrar tu pedido.");
+    } finally {
+      setPaying(false);
+    }
   }
-}
 
   if (hydrated && !isAuthenticated) {
     return (
@@ -106,7 +120,7 @@ async function handleSubmit(e: FormEvent) {
         </p>
       ) : (
         <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="space-y-8">
             <fieldset className="space-y-4">
               <legend className="font-display text-lg font-medium">Contacto y envío</legend>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -142,16 +156,30 @@ async function handleSubmit(e: FormEvent) {
             <fieldset className="space-y-3 rounded-2xl border border-border/80 bg-surface/50 p-5">
               <div className="flex items-start gap-2 text-xs text-muted">
                 <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber" />
-                Este es un checkout de demostración. No se procesan pagos reales ni se
-                guardan datos de tarjetas. Para producción, integra Stripe, MercadoPago
-                o Conekta en este paso.
+                Pago de prueba (Sandbox de PayPal). No se procesa dinero real.
               </div>
             </fieldset>
 
-            <ShimmerButton type="submit" className="w-full text-base">
-              Confirmar pedido — {formatMXN(total)}
-            </ShimmerButton>
-          </form>
+            {payError && (
+              <p className="text-sm text-red-400">{payError}</p>
+            )}
+
+            <PayPalButton
+              items={detailedLines.map(({ product, quantity }) => ({
+                clave: product.clave,
+                descripcion: product.descripcion ?? "",
+                quantity,
+                unitPrice: product.precio ?? 0,
+              }))}
+              currency="MXN"
+              onSuccess={handlePaymentSuccess}
+              onError={() => setPayError("Hubo un problema con el pago. Intenta de nuevo.")}
+            />
+
+            {paying && (
+              <p className="text-sm text-muted">Registrando tu pedido…</p>
+            )}
+          </div>
 
           <aside className="h-fit rounded-3xl border border-border/80 bg-surface p-6">
             <h2 className="font-display text-lg font-medium">Resumen</h2>

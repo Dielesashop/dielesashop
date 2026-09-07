@@ -214,10 +214,17 @@ export function ProductRequestForm() {
     setSendError(null);
 
     try {
+      const payload = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        payload.append(key, value);
+      });
+      images.forEach((img) => {
+        payload.append("images", img.file, img.file.name);
+      });
+
       const res = await fetch("/api/send-email", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: payload,
       });
 
       const data = (await res.json()) as { ok: boolean; error?: string };
@@ -692,9 +699,9 @@ export function ProductRequestForm() {
                       className="w-full rounded-2xl border border-slate-200 bg-white py-3.5 pl-12 pr-5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
                     />
                   </div>
-                  <p className="mt-2 text-xs text-slate-400">
+                  {/* <p className="mt-2 text-xs text-slate-400">
                     Si tienes una orden de compra o referencia, ingrésala aquí.
-                  </p>
+                  </p> */}
                 </div>
               </div>
             </section>

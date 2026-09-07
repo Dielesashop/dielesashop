@@ -3,18 +3,35 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB por imagen
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { nombre, descripcion, cantidad, numeroCompras, correo, contacto } =
-      body as {
-        nombre: string;
-        descripcion: string;
-        cantidad: string;
-        numeroCompras: string;
-        correo: string;
-        contacto: string;
-      };
+    const formData = await req.formData();
+
+    const nombre = String(formData.get("nombre") ?? "");
+    const descripcion = String(formData.get("descripcion") ?? "");
+    const cantidad = String(formData.get("cantidad") ?? "");
+    const numeroCompras = String(formData.get("numeroCompras") ?? "");
+    const correo = String(formData.get("correo") ?? "");
+    const contacto = String(formData.get("contacto") ?? "");
+
+    const files = formData.getAll("images").filter((f): f is File => f instanceof File);
+
+    const attachments = [];
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { ok: false, error: `La imagen "${file.name}" supera 5MB.` },
+          { status: 400 }
+        );
+      }
+      const buffer = Buffer.from(await file.arrayBuffer());
+      attachments.push({
+        filename: file.name || "foto.jpg",
+        content: buffer,
+      });
+    }
 
     const to: string[] = [];
     if (process.env.EMAIL_TO_1) to.push(process.env.EMAIL_TO_1);
@@ -32,6 +49,7 @@ export async function POST(req: NextRequest) {
       to,
       subject: `Nueva solicitud de producto: ${nombre}`,
       replyTo: correo,
+      attachments: attachments.length > 0 ? attachments : undefined,
       html: `
         <!DOCTYPE html>
         <html lang="es">
@@ -112,6 +130,12 @@ export async function POST(req: NextRequest) {
                           </td>
                         </tr>
                       </table>
+
+                      ${
+                        attachments.length > 0
+                          ? `<p style="margin:20px 0 0;font-size:13px;color:#64748b;">📎 Se adjuntaron ${attachments.length} foto(s) del producto en este correo.</p>`
+                          : ""
+                      }
 
                     </td>
                   </tr>
