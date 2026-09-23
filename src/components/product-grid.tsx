@@ -6,31 +6,61 @@ import type { Product } from "@/lib/products";
 import { useCart } from "@/context/cart-context";
 import { ProductCard } from "./product-card";
 import TextType from "./texttype";
-import { normalize } from "@/utils/cn"; // ← importa el utilitario
+import { normalize, compact } from "@/utils/cn";
+
+const MAX_RESULTS = 200;
 
 export function ProductGrid({ products }: { products: Product[] }) {
   const [query, setQuery] = useState("");
   const { addItem } = useCart();
 
+  // Índice de búsqueda: se calcula solo cuando cambian los productos
+  const index = useMemo(
+    () =>
+      products.map((product) => {
+        const clave = normalize(product.clave);
+        const desc = normalize(product.descripcion);
+        return {
+          product,
+          claveCompact: compact(clave),
+          descCompact: compact(desc),
+          text: `${clave} ${desc}`,
+        };
+      }),
+    [products]
+  );
+
   const filtered = useMemo(() => {
     const q = normalize(query);
-
-    // Sin búsqueda → primeros 25
     if (!q) return products.slice(0, 25);
 
-    // Dividimos la query en tokens individuales (cada palabra por separado)
     const tokens = q.split(" ").filter(Boolean);
+    const qCompact = compact(q);
 
-    return products.filter((p) => {
-      // Normalizamos los campos del producto
-      const clave       = normalize(p.clave ?? "");
-      const descripcion = normalize(p.descripcion ?? "");
-      const haystack    = `${clave} ${descripcion}`;   // campo unificado de búsqueda
+    return index
+      .filter((item) =>
+        tokens.every(
+          (token) =>
+            // coincidencia normal, o "compacta" (ignora espacios/guiones/puntos)
+            item.text.includes(token) ||
+            item.claveCompact.includes(token) ||
+            item.descCompact.includes(token)
+        ) ||
+        // la búsqueda completa pegada también puede coincidir con la clave
+        item.claveCompact.includes(qCompact)
+      )
+      .map((item) => {
+        // Ranking: clave exacta > empieza con > el resto
+        let score = 2;
+        if (item.claveCompact === qCompact) score = 0;
+        else if (item.claveCompact.startsWith(qCompact)) score = 1;
+        return { product: item.product, score };
+      })
+      .sort((a, b) => a.score - b.score)
+      .map((r) => r.product);
+  }, [query, index, products]);
 
-      // El producto debe contener TODOS los tokens en alguno de sus campos
-      return tokens.every((token) => haystack.includes(token));
-    });
-  }, [query, products]);
+  const visible = filtered.slice(0, MAX_RESULTS);
 
   return (
     <section id="catalogo" className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
@@ -91,13 +121,14 @@ export function ProductGrid({ products }: { products: Product[] }) {
 
       {query && (
         <p className="mt-3 text-xs text-gray-500">
-          {filtered.length} resultado{filtered.length !== 1 ? "s" : ""} para{" "}
+          {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
+          {filtered.length > MAX_RESULTS && ` (mostrando ${MAX_RESULTS})`} para{" "}
           <span className="font-medium text-gray-800">"{query}"</span>
         </p>
       )}
 
       {/* Sin resultados */}
-      {filtered.length === 0 ? (
+      {visible.length === 0 ? (
         <div className="mt-16 flex flex-col items-center justify-center gap-3 text-center text-gray-400">
           <PackageSearch className="h-10 w-10 text-gray-300" strokeWidth={1.2} />
           <p className="text-sm">No encontramos productos con esa búsqueda.</p>
@@ -110,7 +141,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
         </div>
       ) : (
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((p) => (
+          {visible.map((p) => (
             <ProductCard key={p.clave} product={p} onAdd={addItem} />
           ))}
         </div>

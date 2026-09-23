@@ -4,13 +4,19 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-// utils/normalize.ts  ← crea este archivo utilitario
-export function normalize(str: string): string {
-  return str
+
+// Acepta string, número, null o undefined sin tronar
+export function normalize(value: unknown): string {
+  return (value == null ? "" : String(value))
     .toLowerCase()
-    .normalize("NFD")                        // descompone caracteres acentuados
-    .replace(/[\u0300-\u036f]/g, "")         // elimina diacríticos (á→a, é→e, etc.)
-    .replace(/[^a-z0-9\s]/g, " ")           // reemplaza símbolos por espacio
-    .replace(/\s+/g, " ")                    // colapsa espacios múltiples
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")   // quita acentos
+    .replace(/[^a-z0-9\s]/g, " ")      // símbolos → espacio
+    .replace(/\s+/g, " ")
     .trim();
+}
+
+// Solo letras y números: "CDM-10N" / "cdm 10n" → "cdm10n"
+export function compact(value: unknown): string {
+  return normalize(value).replace(/\s/g, "");
 }
