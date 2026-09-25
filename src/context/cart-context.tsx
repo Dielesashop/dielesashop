@@ -1,6 +1,7 @@
 // ✅ Correcto — primera línea del archivo
 "use client";
 
+import { precioNeto } from "@/lib/products";
 import {
   createContext,
   useCallback,
@@ -27,7 +28,12 @@ type CartContextValue = {
   clear: () => void;
   itemCount: number;
   subtotal: number;
-  detailedLines: { product: Product; quantity: number; lineTotal: number }[];
+detailedLines: {
+    product: Product;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+  }[];
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -96,17 +102,23 @@ export function CartProvider({
     () =>
       lines
         .map((l) => {
-          const product = products.find((p) => p.clave === l.clave); // ← antes: p.id
+          const product = products.find((p) => p.clave === l.clave);
           if (!product) return null;
+          const unitPrice = precioNeto(product);
           return {
             product,
             quantity: l.quantity,
-            lineTotal: (product.precio ?? 0) * l.quantity, // ← antes: product.price
+            unitPrice,
+            lineTotal: unitPrice * l.quantity,
           };
         })
         .filter(
-          (x): x is { product: Product; quantity: number; lineTotal: number } =>
-            !!x
+          (x): x is {
+            product: Product;
+            quantity: number;
+            unitPrice: number;
+            lineTotal: number;
+          } => !!x
         ),
     [lines, products]
   );

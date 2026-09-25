@@ -64,7 +64,7 @@ export function CartDrawer() {
                 </div>
               ) : (
                 <ul className="space-y-5">
-                  {detailedLines.map(({ product, quantity, lineTotal }) => (
+                  {detailedLines.map(({ product, quantity,unitPrice, lineTotal }) => (
                     <li key={product.clave} className="flex gap-4">
                       <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-xl font-bold text-indigo-500">
                         {product.clave.slice(0, 2).toUpperCase()}
@@ -77,7 +77,7 @@ export function CartDrawer() {
                               {product.descripcion ?? product.clave}
                             </p>
                             <p className="mt-0.5 font-mono text-xs text-gray-500">
-                              {formatMXN(product.precio ?? 0)} c/u
+                              {formatMXN(unitPrice)} c/u
                             </p>
                           </div>
                           <button
@@ -134,7 +134,7 @@ export function CartDrawer() {
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-gray-400">
-                  Envío e impuestos se calculan al pagar.
+                  Precios con IVA incluido. El envío se calcula al pagar.
                 </p>
                 <button
                   onClick={handleCheckout}

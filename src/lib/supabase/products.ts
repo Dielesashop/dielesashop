@@ -15,7 +15,7 @@ export async function getProducts(): Promise<Product[]> {
   while (true) {
     const { data, error } = await supabase
       .from("productos")
-      .select("clave, descripcion, existencia, precio, actualizado_en")
+      .select("clave, descripcion, existencia, precio, actualizado_en, lin_prod")
       .order("clave", { ascending: true })
       .range(from, from + PAGE_SIZE - 1);
 

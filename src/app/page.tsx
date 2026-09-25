@@ -14,8 +14,8 @@ import { ProductRequestForm } from "@/components/product-requestfrom";
 
 
 
-// Vuelve a pedir los productos a Supabase cada 60s como máximo (ISR).
-export const revalidate = 60;
+// Vuelve a pedir los productos a Supabase cada 60s como máximo (ISR). volver a poner en 60s
+export const revalidate = 50;
 
 export default async function Home() {
   const products = await getProducts();

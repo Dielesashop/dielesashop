@@ -313,7 +313,7 @@ export function ProductCard({ product, onAdd }: Props) {
             <div className="price-row" style={{ width: "100%" }}>
               <span className="price">
                 $
-                {precioNeto(product.precio ?? 0).toLocaleString("es-MX", {
+                {precioNeto(product).toLocaleString("es-MX", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
