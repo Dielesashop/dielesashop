@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import styled from "styled-components";
 import type { Product } from "@/lib/products";
 import { precioNeto } from "@/lib/products";
@@ -33,6 +34,7 @@ const StyledWrapper = styled.div`
   }
 
   .card-image {
+    position: relative;
     width: 100%;
     height: 130px;
     display: flex;
@@ -209,6 +211,7 @@ const StyledWrapper = styled.div`
     cursor: pointer;
     color: #555;
     line-height: 1;
+    z-index: 2;
   }
 
   .modal-close:hover {
@@ -234,6 +237,8 @@ const StyledWrapper = styled.div`
   }
 
   .modal-main-img {
+    position: relative;
+    overflow: hidden;
     width: 100%;
     height: 220px;
     border-radius: 10px;
@@ -253,17 +258,14 @@ const StyledWrapper = styled.div`
   }
 
   .modal-thumb {
+    position: relative;
+    overflow: hidden;
     flex: 1;
     height: 80px;
     border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4em;
-    font-weight: 900;
-    font-family: monospace;
+    background: #fff;
     cursor: pointer;
-    border: 2px solid transparent;
+    border: 2px solid #e5e5e5;
     transition: border 0.2s, opacity 0.2s;
     opacity: 0.7;
   }
@@ -278,31 +280,57 @@ const StyledWrapper = styled.div`
   }
 `;
 
-/* Paleta de 3 "vistas" del producto */
-const VIEWS = [
-  { bg: "#e8f4fd", color: "#1a5276", label: "Vista frontal" },
-  { bg: "#fef9e7", color: "#7d6608", label: "Vista lateral" },
-  { bg: "#f9ebea", color: "#922b21", label: "Vista trasera" },
-];
-
 export function ProductCard({ product, onAdd }: Props) {
   const inStock = (product.existencia ?? 0) > 0;
   const initials = product.clave.split("-")[0] ?? "???";
   const [modalOpen, setModalOpen] = useState(false);
   const [activeView, setActiveView] = useState(0);
+  const [fotoFalla, setFotoFalla] = useState(false);
+  const [zoom, setZoom] = useState(false);
+  const [origen, setOrigen] = useState("50% 50%");
+
+  // Fotos reales (URLs completas de Supabase Storage)
+  const fotos = product.imagenes ?? [];
+  const fotoTarjeta = !fotoFalla ? fotos[0] : undefined;
+
+  const cerrarModal = () => {
+    setModalOpen(false);
+    setActiveView(0);
+    setZoom(false);
+  };
+
+  // Calcula qué parte de la foto se está señalando (para la lupa)
+  const moverLupa = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * 100;
+    const y = ((e.clientY - r.top) / r.height) * 100;
+    setOrigen(`${x}% ${y}%`);
+  };
 
   return (
     <StyledWrapper>
       <div className="card">
         <div className="wrapper">
-          {/* Imagen / iniciales — clic abre modal */}
+          {/* Foto (o iniciales si no hay foto) — clic abre modal */}
           <div
             className="card-image"
-            style={{ background: "#e8e8e8" }}
+            style={{ background: fotoTarjeta ? "#fff" : "#e8e8e8" }}
             onClick={() => setModalOpen(true)}
             title="Ver detalles"
           >
-            {initials}
+            {fotoTarjeta ? (
+              <Image
+                src={fotoTarjeta}
+                alt={product.descripcion ?? product.clave}
+                fill
+                sizes="(max-width: 768px) 50vw, 250px"
+                style={{ objectFit: "contain" }}
+                unoptimized
+                onError={() => setFotoFalla(true)}
+              />
+            ) : (
+              initials
+            )}
           </div>
 
           {/* Contenido */}
@@ -342,17 +370,11 @@ export function ProductCard({ product, onAdd }: Props) {
 
       {/* ── Modal ── */}
       {modalOpen && (
-        <div
-          className="modal-overlay"
-          onClick={() => setModalOpen(false)}
-        >
-          <div
-            className="modal-box"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="modal-overlay" onClick={cerrarModal}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <button
               className="modal-close"
-              onClick={() => setModalOpen(false)}
+              onClick={cerrarModal}
               aria-label="Cerrar"
             >
               ✕
@@ -363,31 +385,71 @@ export function ProductCard({ product, onAdd }: Props) {
               {product.descripcion ?? "Sin descripción"}
             </p>
 
-            {/* Imagen principal */}
+            {/* Imagen principal con lupa */}
             <div
               className="modal-main-img"
               style={{
-                background: VIEWS[activeView]!.bg,
-                color: VIEWS[activeView]!.color,
+                background: fotos.length > 0 ? "#fff" : "#e8e8e8",
+                color: "#555",
+                cursor: fotos.length > 0 ? "zoom-in" : "default",
+                touchAction: fotos.length > 0 ? "none" : "auto",
               }}
+              onPointerEnter={(e) => {
+                if (fotos.length === 0) return;
+                moverLupa(e);
+                setZoom(true);
+              }}
+              onPointerMove={(e) => {
+                if (zoom) moverLupa(e);
+              }}
+              onPointerLeave={() => setZoom(false)}
             >
-              {initials}
+              {fotos.length > 0 ? (
+                <Image
+                  key={fotos[activeView]}
+                  src={fotos[activeView]!}
+                  alt={product.descripcion ?? product.clave}
+                  fill
+                  sizes="520px"
+                  unoptimized
+                  draggable={false}
+                  style={{
+                    objectFit: "contain",
+                    transform: zoom ? "scale(2)" : "scale(1)",
+                    transformOrigin: origen,
+                    transition: "transform 0.2s ease-out",
+                  }}
+                />
+              ) : (
+                initials
+              )}
             </div>
 
-            {/* Miniaturas */}
-            <div className="modal-thumbs">
-              {VIEWS.map((v, i) => (
-                <div
-                  key={i}
-                  className={`modal-thumb ${activeView === i ? "active" : ""}`}
-                  style={{ background: v.bg, color: v.color }}
-                  onClick={() => setActiveView(i)}
-                  title={v.label}
-                >
-                  {initials}
-                </div>
-              ))}
-            </div>
+            {/* Miniaturas (solo si hay más de una foto) */}
+            {fotos.length > 1 && (
+              <div className="modal-thumbs">
+                {fotos.map((src, i) => (
+                  <div
+                    key={src}
+                    className={`modal-thumb ${activeView === i ? "active" : ""}`}
+                    onClick={() => {
+                      setActiveView(i);
+                      setZoom(false);
+                    }}
+                    title={`Foto ${i + 1}`}
+                  >
+                    <Image
+                      src={src}
+                      alt={`Foto ${i + 1} de ${product.clave}`}
+                      fill
+                      sizes="100px"
+                      style={{ objectFit: "contain" }}
+                      unoptimized
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
