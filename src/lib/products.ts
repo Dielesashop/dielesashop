@@ -1,3 +1,12 @@
+// Agregamos el tipo que te faltaba aquí:
+export type ProductVisual = {
+  icon: "headphones" | "watch" | "speaker" | "glasses" | "mouse" | "keyboard" | "lamp" | "camera";
+  from: string;
+  via: string;
+  to: string;
+};
+
+// Tu código original que ya tenías:
 export interface Product {
   imagenes: never[];
   clave: string;
