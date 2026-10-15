@@ -290,7 +290,7 @@ export function ProductCard({ product, onAdd }: Props) {
   const [origen, setOrigen] = useState("50% 50%");
 
   // Fotos reales (URLs completas de Supabase Storage)
-  const fotos = product.imagenes ?? [];
+  const fotos = product.imagenes ?? []; 
   const fotoTarjeta = !fotoFalla ? fotos[0] : undefined;
 
   const cerrarModal = () => {
