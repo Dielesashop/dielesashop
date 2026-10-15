@@ -1,3 +1,4 @@
+'use strict';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
