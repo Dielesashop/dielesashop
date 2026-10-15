@@ -1,4 +1,5 @@
 export interface Product {
+  imagenes: never[];
   clave: string;
   descripcion: string | null;
   existencia: number | null;
